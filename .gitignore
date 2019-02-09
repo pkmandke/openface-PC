@@ -1,0 +1,4 @@
+images/**
+*.dat
+*.t7
+scripts/__pycache__/**
