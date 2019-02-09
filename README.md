@@ -15,4 +15,4 @@ Running main.py in /scripts starts the API for adding a new face and/or detectin
 
 # Author
 
-[Prathamesh Mandke](mandkepk97@gmail.com)
+[Prathamesh Mandke](https://www.linkedin.com/in/prathamesh-mandke-866866168/)
