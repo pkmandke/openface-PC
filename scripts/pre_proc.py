@@ -13,9 +13,9 @@ def img_capt(cam_id=1, bness=200):
     _, fr = cam.read()
 
     if _:
-        return fr;
+        return True, fr;
     else:
-        return None
+        return False, None
 
 def rect_to_bb(rect):
     # take a bounding predicted by dlib and convert it
@@ -35,12 +35,12 @@ def face_crop(img, affine=False):
     bbx = al.getLargestFaceBoundingBox(img)
 
     if bbx == None:
-        return None
+        return False, None
     else:
         (x, y, w, h) = rect_to_bb(bbx)
     if x <= 0 or y <= 0 or w <= 0 or h <= 0:
-        return None
+        return False, None
     else:
-        return cv2.resize(img[y:y+h, x:x+w].astype('uint8'),(96,96))
+        return True, cv2.resize(img[y:y+h, x:x+w].astype('uint8'),(96,96))
 
-    return None
+    return False, None
