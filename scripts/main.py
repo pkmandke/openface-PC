@@ -10,14 +10,17 @@ MAX_TRAIN_IMGS = 10
 img_wpath = '/home/prathamesh/undergrad/btech_proj/misc/openface/pc_demo/images/'
 dict_path = '/home/prathamesh/undergrad/btech_proj/misc/openface/pc_demo/face_dict.sav'
 
-def find_face(model, get_crop=False):
+def find_face(model, get_crop=False, path=None):
 
     while True:
-        _, imgg = ic.img_capt(bness=240)
-        if not _:
-            print("Unable to capture image. Trying again...")
-            continue
-        cv2.imwrite(img_wpath + 'captured/c1.jpg', imgg)
+        if path == None:
+            _, imgg = ic.img_capt(cam_id=0, bness=50)
+            if not _:
+                print("Unable to capture image. Trying again...")
+                continue
+            cv2.imwrite(img_wpath + 'captured/c1.jpg', imgg)
+        else:
+            imgg = cv2.imread(path)
 
         _, imgg = ic.face_crop(imgg)
         if not _:
@@ -35,22 +38,23 @@ def find_face(model, get_crop=False):
     if embd.any() == None:
         print("Error in embeddings")
         return None
-    print("Embeddings: {0}".format(embd))
+    #print("Embeddings: {0}".format(embd))
 
     face_dict = joblib.load(dict_path)
     mind = 100
     index = -1
+    print("Searching face in codebook of {0} faces".format(len(face_dict[0])))
     for i in range(len(face_dict[0])):
-        dis = pp.relative_dist(face_dict[1], embd)
+        dis = pp.relative_dist(face_dict[1][i], embd)
         if dis < mind:
             mind, _index = dis, i
 
-    if mind <= 1:
-        print("Person identified: " + face_dict[0][_index] + str(mind))
+    #if mind <= 1:
+        print("Person: {0}  Distance: {1}".format(face_dict[0][i], str(dis)))
         cv2.imwrite(img_wpath + 'test/' +  face_dict[0][_index] + '.jpg', imgg)
-    else:
-        print("No person found. Minimum distance = {0}. Embedding is {1}".format(mind, embd))
-        cv2.imwrite(img_wpath + 'test/none.jpg', imgg)
+    #else:
+        #print("No person found. Minimum distance = {0}".format(mind))
+        #cv2.imwrite(img_wpath + 'test/none.jpg', imgg)
 
 
 if __name__ == '__main__':
@@ -79,8 +83,11 @@ if __name__ == '__main__':
             while True:
 
                 print("------------Face recognition mode----------")
-                print("Press 0 to exit")
+                print("Press 1 to provide stored image as input")
+                print("Press 2 to enter path of folder having images(uncropped)")
+                print("Press 3 for stored cropped images")
                 print("Press 5 to capture image. Then wait for output......")
+                print("Press 0 to exit")
 
                 itt = int(input())
 
@@ -89,6 +96,34 @@ if __name__ == '__main__':
                     break
                 elif itt == 5:
                     find_face(model)
+                elif itt == 3:
+                    pth = str(input('Enter full path to image:  '))
+                    imgg = cv2.imread(pth)
+                    embd = facenet.forward(model, imgg).reshape(1,128)
+                    if embd.any() == None:
+                        print("Error in embeddings")
+                        continue
+                    #print("Embeddings: {0}".format(embd))
+
+                    face_dict = joblib.load(dict_path)
+                    mind = 100
+                    index = -1
+                    print("Searching face in codebook of {0} faces".format(len(face_dict[0])))
+                    for i in range(len(face_dict[0])):
+                        dis = pp.relative_dist(face_dict[1][i], embd)
+                        if dis < mind:
+                            mind, _index = dis, i
+
+                    #if mind <= 1:
+                        print("Person: {0}  Distance: {1}".format(face_dict[0][i], str(dis)))
+                        cv2.imwrite(img_wpath + 'test/' +  face_dict[0][_index] + '.jpg', imgg)
+                elif itt == 1:
+                    pth = str(input('Enter full path to image:  '))
+                    find_face(model, path=pth)
+                elif itt == 2:
+                    pth = str(input("Enter full path to folder: "))
+                    for _ in os.listdir(pth):
+                        find_face(model, path=pth + '/' + _)
                 else:
                     print("Invalid input. Try again")
 
@@ -97,20 +132,31 @@ if __name__ == '__main__':
             pname = str(input("Enter name of new person:  "))
             f_dict = joblib.load(dict_path)
             f_dict[0].append(pname)
-            print("Enter 10 images of the same person. Click 1 to capture image.")
-            embd_l = []
-            for i in range(MAX_TRAIN_IMGS):
-                print("Press 1 to capture {0}th image".format(i+1))
-                if int(input()) == 1:
-                    imag = find_face(model, get_crop=True)
-                    cv2.imwrite(img_wpath + 'train/' + pname + '.jpg', imag)
-                    embd_l.append(facenet.forward(model, imag.reshape(96,96,3)).reshape(1,128))
+            print("Press 1 for capturing real time images for training")
+            print("Press 2 for providing path for training images")
+
+            in1 = int(input())
+            if in1 == 2:
+                pth = str(input('Enter path to folder: '))
+                embd_l = []
+                for fl1 in os.listdir(pth):
+                    im1 = cv2.imread(pth + fl1)
+                    embd_l.append(facenet.forward(model, im1).reshape(1,128))
+            elif in1 == 1:
+                print("Enter 10 images of the same person. Click 1 to capture image.")
+                embd_l = []
+                for i in range(MAX_TRAIN_IMGS):
+                    print("Press 1 to capture {0}th image".format(i+1))
+                    if int(input()) == 1:
+                        imag = find_face(model, get_crop=True)
+                        cv2.imwrite(img_wpath + 'train/' + pname + '.jpg', imag)
+                        embd_l.append(facenet.forward(model, imag.reshape(96,96,3)).reshape(1,128))
 
             f_dict[1].append(pp.dis_avg(embd_l))
             joblib.dump(f_dict, dict_path)
 
             print("New face added for {0}".format(pname))
-            print("average embedding {0}".format(f_dict[1][-1]))
+            print("Average embedding {0}".format(f_dict[1][-1]))
 
         else:
             print("Invalid option")

@@ -2,3 +2,4 @@ images/**
 *.dat
 *.t7
 scripts/__pycache__/**
+Photos/**

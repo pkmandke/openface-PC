@@ -4,7 +4,7 @@ import aligndlib as adl
 
 pred_path = '/home/prathamesh/undergrad/btech_proj/misc/openface/testing/shape_predictor_68_face_landmarks.dat'
 
-def img_capt(cam_id=1, bness=200):
+def img_capt(cam_id=1, bness=250):
 
     cam = cv2.VideoCapture(cam_id);
 
