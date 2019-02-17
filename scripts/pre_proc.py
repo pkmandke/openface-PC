@@ -28,7 +28,7 @@ def rect_to_bb(rect):
     return (x, y, w, h)
 
 
-def face_crop(img, affine=False):
+def face_crop(img, affine=False, outDim=96):
     # Script to generate cropped but not aligned face bounding box - Largest only
     al = adl.AlignDlib(pred_path)
 
@@ -38,9 +38,12 @@ def face_crop(img, affine=False):
         return False, None
     else:
         (x, y, w, h) = rect_to_bb(bbx)
-    if x <= 0 or y <= 0 or w <= 0 or h <= 0:
-        return False, None
-    else:
-        return True, cv2.resize(img[y:y+h, x:x+w].astype('uint8'),(96,96))
+        if x <= 0 or y <= 0 or w <= 0 or h <= 0:
+            return False, None
+
+        if affine:
+            return True, al.align(outDim, img, bb=bbx).astype('uint8')
+        else:
+            return True, cv2.resize(img[y:y+h, x:x+w].astype('uint8'),(96,96))
 
     return False, None

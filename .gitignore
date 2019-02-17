@@ -3,3 +3,4 @@ images/**
 *.t7
 scripts/__pycache__/**
 Photos/**
+scripts/.ipynb_checkpoints/**
