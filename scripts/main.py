@@ -23,8 +23,10 @@ def find_face(model, get_crop=False, imgg=None, path=None, aff_en=False, skip_pr
                 cv2.imwrite(img_wpath + 'captured/c1.jpg', imgg)
             else:
                 imgg = cv2.imread(path)
+                print("jsdfn")
+                print(imgg)
 
-            _, imgg = ic.face_crop(imgg, affine=aff_en)
+            _, imgg = ic.face_crop(img=imgg, affine=aff_en)
             if not _:
                 if not get_crop:
                     print("No face found in image.")

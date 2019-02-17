@@ -32,6 +32,8 @@ def face_crop(img, affine=False, outDim=96):
     # Script to generate cropped but not aligned face bounding box - Largest only
     al = adl.AlignDlib(pred_path)
 
+#    print(img)
+
     bbx = al.getLargestFaceBoundingBox(img)
 
     if bbx == None:
