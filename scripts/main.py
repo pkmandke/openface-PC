@@ -5,10 +5,11 @@ from sklearn.externals import joblib
 import pre_proc as ic
 import facenet
 import post_proc as pp
+import argparse
 
 MAX_TRAIN_IMGS = 10
 img_wpath = '/home/prathamesh/undergrad/btech_proj/misc/openface/pc_demo/images/'
-dict_path = '/home/prathamesh/undergrad/btech_proj/misc/openface/pc_demo/face_dict.sav'
+#dict_path = '/home/prathamesh/undergrad/btech_proj/misc/openface/pc_demo/face_dict.sav'
 
 def find_face(model, get_crop=False, imgg=None, path=None, aff_en=False, skip_prep=False):
 
@@ -42,7 +43,7 @@ def find_face(model, get_crop=False, imgg=None, path=None, aff_en=False, skip_pr
         return None
     #print("Embeddings: {0}".format(embd))
 
-    face_dict = joblib.load(dict_path)
+    face_dict = joblib.load(args.dict_path)
     mind = 100
     index = -1
     print("Searching face in codebook of {0} faces".format(len(face_dict[0])))
@@ -59,13 +60,20 @@ def find_face(model, get_crop=False, imgg=None, path=None, aff_en=False, skip_pr
         #cv2.imwrite(img_wpath + 'test/none.jpg', imgg)
 
 
+apr = argparse.ArgumentParser()
+apr.add_argument('rem_cbook', help='0 to remember codebook\n1 to forget codebook', type=int)
+apr.add_argument('dict_path', help="Path to '.sav' of the codebook", type=str)
+apr.add_argument('model_path', help='path to torch model t7 file', type=str)
+args = apr.parse_args()
+
+
 if __name__ == '__main__':
+
     while True:
 
-        cc = int(input("Remember codebook 0\nForget codebook 1  \n"))
-        if cc == 1:
+        if args.rem_cbook == 1:
             ll = [[], []]
-            joblib.dump(ll, dict_path)
+            joblib.dump(ll, args.dict_path)
             del ll
 
         print("----------------Face recognition using Facenet CNN-----------------------")
@@ -83,7 +91,7 @@ if __name__ == '__main__':
 
         ch = int(input())
 
-        model = facenet.load_model()
+        model = facenet.load_model(model_path=args.model_path)
 
         if ch == 0:
             print("----------------------------Exiting---------------------------------");
@@ -123,7 +131,7 @@ if __name__ == '__main__':
         elif ch == 2:
             print("---------API for adding new face to dictionary---------")
             pname = str(input("Enter name of new person:  "))
-            f_dict = joblib.load(dict_path)
+            f_dict = joblib.load(args.dict_path)
             f_dict[0].append(pname)
             print("Press 1 for capturing real time images for training")
             print("Press 2 for providing path for training images")
@@ -146,7 +154,7 @@ if __name__ == '__main__':
                         embd_l.append(facenet.forward(model, imag.reshape(96,96,3)).reshape(1,128))
 
             f_dict[1].append(pp.dis_avg(embd_l))
-            joblib.dump(f_dict, dict_path)
+            joblib.dump(f_dict, args.dict_path)
 
             print("New face added for {0}".format(pname))
             print("Average embedding {0}".format(f_dict[1][-1]))
