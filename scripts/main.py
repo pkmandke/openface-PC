@@ -69,12 +69,13 @@ args = apr.parse_args()
 
 if __name__ == '__main__':
 
-    while True:
 
-        if args.rem_cbook == 1:
-            ll = [[], []]
-            joblib.dump(ll, args.dict_path)
-            del ll
+    if args.rem_cbook == 1:
+        ll = [[], []]
+        joblib.dump(ll, args.dict_path)
+        del ll
+
+    while True:
 
         print("----------------Face recognition using Facenet CNN-----------------------")
         print("Press 0 to disable affine alignment\nPress 1 to enable affine based aligning\n")
