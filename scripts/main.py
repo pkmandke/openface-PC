@@ -33,7 +33,7 @@ def find_face(model, get_crop=False, imgg=None, path=None, aff_en=False, skip_pr
                 print("No face found in frame. Trying again...")
                 continue
             break
-
+        cv2.imwrite(img_wpath + 'captured/cropped.jpg', imgg)
         if get_crop:
             return imgg
 
@@ -61,9 +61,9 @@ def find_face(model, get_crop=False, imgg=None, path=None, aff_en=False, skip_pr
 
 
 apr = argparse.ArgumentParser()
-apr.add_argument('rem_cbook', help='0 to remember codebook\n1 to forget codebook', type=int)
-apr.add_argument('dict_path', help="Path to '.sav' of the codebook", type=str)
-apr.add_argument('model_path', help='path to torch model t7 file', type=str)
+apr.add_argument('--rem_cbook', help='0 to remember codebook\n1 to forget codebook', type=int, default=0)
+apr.add_argument('--dict_path', help="Path to '.sav' of the codebook", type=str, default='/home/prathamesh/undergrad/btech_proj/misc/openface/pc_demo/codebooks/small2.sav')
+apr.add_argument('--model_path', help='path to torch model t7 file', type=str, default='/home/prathamesh/undergrad/btech_proj/misc/openface/pc_demo/models/nn4.small2.v1.t7')
 args = apr.parse_args()
 
 
